@@ -2,9 +2,11 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
+import authRouter from "./routes/auth.routes";
+import { errorHandler } from "./middleware/error.middleware";
 dotenv.config();
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI as string;
 
 const app = express();
@@ -18,9 +20,13 @@ app.use(
   })
 );
 
+app.use("/api/v1/auth", authRouter);
+
 app.get("/", (req, res) => {
   res.send("Backend Running....");
 });
+
+app.use(errorHandler);
 
 mongoose
   .connect(MONGO_URI)
@@ -33,5 +39,5 @@ mongoose
   });
 
 app.listen(PORT, () => {
-  console.log("Server is running");
+  console.log(`Server running on http://localhost:${PORT}`);
 });
