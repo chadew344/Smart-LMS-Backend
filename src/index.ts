@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import authRouter from "./routes/auth.routes";
 import { errorHandler } from "./middleware/error.middleware";
+import cookieParser from "cookie-parser";
 dotenv.config();
 
 const PORT = process.env.PORT || 5000;
@@ -12,11 +13,13 @@ const MONGO_URI = process.env.MONGO_URI as string;
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.use(
   cors({
     origin: ["http://localhost:5173"],
     methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
   })
 );
 
