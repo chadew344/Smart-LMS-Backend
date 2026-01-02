@@ -3,15 +3,12 @@ import { authenticate } from "../middleware/auth.middleware";
 import {
   getMyProfile,
   login,
+  logout,
   refreshToken,
   registerUser,
 } from "../controllers/auth.controller";
-import { validate } from "../middleware/validate.middlware";
-import {
-  loginSchema,
-  refreshTokenSchema,
-  registerSchema,
-} from "../validate/auth.schema";
+import { validate } from "../middleware/validate.middleware";
+import { loginSchema, registerSchema } from "../validate/auth.schema";
 
 const router = Router();
 
@@ -19,8 +16,10 @@ router.post("/register", validate(registerSchema), registerUser);
 
 router.post("/login", validate(loginSchema), login);
 
-router.get("/me", authenticate, getMyProfile);
+router.post("/refresh", refreshToken);
 
-router.post("/refresh", validate(refreshTokenSchema), refreshToken);
+router.post("/logout", authenticate, logout);
+
+router.get("/me", authenticate, getMyProfile);
 
 export default router;

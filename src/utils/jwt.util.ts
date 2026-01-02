@@ -7,10 +7,6 @@ dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET as string;
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET as string;
 
-// const ACCESS_TOKEN_EXPIRY =
-//   (process.env.ACCESS_TOKEN_EXPIRY as string) || "30m";
-// const REFRESH_TOKEN_EXPIRY = process.env.REFRESH_TOKEN_EXPIR || "7d";
-
 if (!JWT_SECRET || !JWT_REFRESH_SECRET) {
   throw new Error("JWT secrets are not defined in environment variables");
 }

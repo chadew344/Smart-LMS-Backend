@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Role, User } from "../models/user.model";
+import { IUser, Role, User } from "../models/user.model";
 import bcrypt from "bcryptjs";
 import { signAccessToken, signRefreshToken } from "../utils/jwt.util";
 import { AuthRequest } from "../types/auth.types";
@@ -7,15 +7,16 @@ import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import { asyncHandler } from "../utils/asyncHandler";
 import { ApiError } from "../utils/ApiError";
-import {
-  LoginSchema,
-  RefreshTokenSchema,
-  RegisterSchema,
-} from "../validate/auth.schema";
+import { LoginSchema, RegisterSchema } from "../validate/auth.schema";
+import { RefreshToken } from "../models/refreshToken.model";
+import { successResponse } from "../utils/successResponse";
 
 dotenv.config();
 
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET as string;
+
+const REFRESH_TOKEN_EXPIRY_DAYS = 7;
+const REFRESH_TOKEN_EXPIRY_MS = REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60 * 1000;
 
 export const registerUser = asyncHandler(
   async (req: Request, res: Response) => {
@@ -35,15 +36,23 @@ export const registerUser = asyncHandler(
       roles: [Role.STUDENT],
     });
 
-    res.status(201).json({
-      success: true,
-      message: "User registered successfully",
-      data: {
-        id: user._id,
-        email: user.email,
-        roles: user.roles,
+    res = await setRefreshToken(user, res);
+
+    successResponse(
+      res,
+      "User registered successfully",
+      {
+        user: {
+          id: user._id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          roles: user.roles,
+        },
+        accessToken: signAccessToken(user),
       },
-    });
+      201
+    );
   }
 );
 
@@ -60,13 +69,17 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     throw new ApiError(401, "Invalid credentials");
   }
 
-  res.status(200).json({
-    success: true,
-    message: "Login successful",
-    data: {
-      accessToken: signAccessToken(user),
-      refreshToken: signRefreshToken(user),
+  res = await setRefreshToken(user, res);
+
+  return successResponse(res, "Login successful", {
+    user: {
+      id: user._id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      roles: user.roles,
     },
+    accessToken: signAccessToken(user),
   });
 });
 
@@ -78,14 +91,16 @@ export const getMyProfile = (req: AuthRequest, res: Response) => {
 
 export const refreshToken = asyncHandler(
   async (req: Request, res: Response) => {
-    const { token } = req.body as RefreshTokenSchema;
-    if (!token) {
+    const { refreshToken } = req.cookies;
+
+    if (!refreshToken) {
       throw new ApiError(400, "Refresh token required");
     }
 
-    let payload;
+    let payload: any;
+
     try {
-      payload = jwt.verify(token, JWT_REFRESH_SECRET);
+      payload = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
     } catch (err) {
       throw new ApiError(401, "Invalid or expired token");
     }
@@ -95,7 +110,61 @@ export const refreshToken = asyncHandler(
       throw new ApiError(404, "User not found");
     }
 
-    const accessToken = signAccessToken(user);
-    res.status(200).json({ accessToken });
+    const tokenExist = await RefreshToken.findOne({
+      token: refreshToken,
+      userId: payload.sub,
+    });
+
+    if (!tokenExist) {
+      throw new ApiError(401, "Refresh token not found or revoked");
+    }
+
+    await RefreshToken.deleteOne({ _id: tokenExist._id });
+
+    res = await setRefreshToken(user, res);
+
+    const newAccessToken = signAccessToken(user);
+
+    return successResponse(res, "Token refreshed successfully", {
+      user: {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        roles: user.roles,
+      },
+      accessToken: newAccessToken,
+    });
   }
 );
+
+export const logout = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { refreshToken } = req.cookies;
+
+  if (refreshToken) {
+    await RefreshToken.deleteOne({ token: refreshToken });
+  }
+
+  res.clearCookie("refreshToken");
+
+  return successResponse(res, "Logged out successfully");
+});
+
+const setRefreshToken = async (user: IUser, res: Response) => {
+  const refreshToken = signRefreshToken(user);
+
+  await RefreshToken.create({
+    token: refreshToken,
+    userId: user._id,
+    expiresAt: new Date(Date.now() + REFRESH_TOKEN_EXPIRY_MS),
+  });
+
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: REFRESH_TOKEN_EXPIRY_MS,
+  });
+
+  return res;
+};

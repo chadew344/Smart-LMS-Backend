@@ -12,7 +12,11 @@ export const registerSchema = z.object({
       .min(2, "Last name must be at least 2 characters")
       .max(50, "Last name must not exceed 50 characters")
       .trim(),
-    email: z.email("Invalid email format").trim().toLowerCase(),
+    email: z
+      .email("Invalid email format")
+      .min(1, "Email is required")
+      .trim()
+      .toLowerCase(),
     password: z
       .string({ error: "Password is required" })
       .regex(
@@ -24,17 +28,10 @@ export const registerSchema = z.object({
 
 export const loginSchema = z.object({
   body: z.object({
-    email: z.email("Invalid email format").toLowerCase().trim(),
+    email: z.email("Please enter a valid email").toLowerCase().trim(),
     password: z.string({ error: "Password is required" }),
-  }),
-});
-
-export const refreshTokenSchema = z.object({
-  body: z.object({
-    token: z.string({ error: "Refresh token is required" }),
   }),
 });
 
 export type RegisterSchema = z.infer<typeof registerSchema>["body"];
 export type LoginSchema = z.infer<typeof loginSchema>["body"];
-export type RefreshTokenSchema = z.infer<typeof refreshTokenSchema>["body"];
