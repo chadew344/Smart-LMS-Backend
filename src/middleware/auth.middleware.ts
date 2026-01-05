@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import { ApiError } from "../utils/ApiError";
 import { asyncHandler } from "../utils/asyncHandler";
+import { Role } from "../models/user.model";
 
 dotenv.config();
 
@@ -14,7 +15,7 @@ if (!JWT_SECRET) {
 }
 
 export const authenticate = asyncHandler(
-  async (req: AuthRequest, res: Response, next: NextFunction) => {
+  async (req: AuthRequest, _res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -44,3 +45,22 @@ export const authenticate = asyncHandler(
     }
   }
 );
+
+export const authorize = (roles: Role[]) =>
+  asyncHandler(async (req: AuthRequest, _res: Response, next: NextFunction) => {
+    if (!req.user) {
+      throw new ApiError(401, "Unauthorized");
+    }
+
+    if (!roles || roles.length === 0) {
+      throw new ApiError(500, "No roles specified for authorization");
+    }
+
+    const hasRole = roles.some((role) => req.user!.roles?.includes(role));
+
+    if (!hasRole) {
+      throw new ApiError(403, `Require ${roles.join(" or ")} role`);
+    }
+
+    next();
+  });
