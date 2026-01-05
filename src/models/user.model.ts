@@ -1,4 +1,4 @@
-import mongoose, { Document, mongo, Schema } from "mongoose";
+import mongoose, { Document, Schema } from "mongoose";
 
 export enum Role {
   ADMIN = "ADMIN",
@@ -13,7 +13,7 @@ export interface IUser extends Document {
   email: string;
   password: string;
   roles: Role[];
-  profileImage?: string;
+  avatar?: string;
   bio?: string;
   expertise?: string[];
   createdAt: Date;
@@ -59,7 +59,7 @@ const userSchema = new Schema<IUser>(
       },
       default: [Role.STUDENT],
     },
-    profileImage: {
+    avatar: {
       type: String,
       default: "",
     },
