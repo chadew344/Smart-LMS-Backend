@@ -3,6 +3,10 @@ import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import authRouter from "./routes/auth.routes";
+import courseRouter from "./routes/course.routes";
+import enrollmentRoutes from "./routes/enrollement.routes";
+import progressRoutes from "./routes/progress.routes";
+import uploadRoutes from "./routes/upload.routes";
 import { errorHandler } from "./middleware/error.middleware";
 import cookieParser from "cookie-parser";
 dotenv.config();
@@ -26,7 +30,15 @@ app.use(
 
 app.use("/api/v1/auth", authRouter);
 
-app.get("/", (req, res) => {
+app.use("/api/v1/courses", courseRouter);
+
+app.use("/api/v1/enrollments", enrollmentRoutes);
+
+app.use("/api/v1/progress", progressRoutes);
+
+app.use("/api/v1/upload", uploadRoutes);
+
+app.get("/", (_req, res) => {
   res.send("Backend Running....");
 });
 

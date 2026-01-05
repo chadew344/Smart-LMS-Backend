@@ -83,7 +83,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   });
 });
 
-export const getMyProfile = (req: AuthRequest, res: Response) => {
+export const getMyProfile = (_req: AuthRequest, res: Response) => {
   res.status(200).json({
     message: "My Profile",
   });
