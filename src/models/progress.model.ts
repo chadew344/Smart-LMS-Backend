@@ -1,4 +1,4 @@
-import mongoose, { Schema, model, Types, Document } from "mongoose";
+import mongoose, { Schema, model, Document } from "mongoose";
 import { ProgressStatus } from "../types/course.type";
 
 export interface ILessonProgress extends Document {

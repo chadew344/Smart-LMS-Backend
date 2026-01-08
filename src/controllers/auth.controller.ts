@@ -10,6 +10,8 @@ import { ApiError } from "../utils/ApiError";
 import { LoginSchema, RegisterSchema } from "../validate/auth.schema";
 import { RefreshToken } from "../models/refreshToken.model";
 import { successResponse } from "../utils/successResponse";
+import { sendEmail } from "../config/email.config";
+import { accountUpgrade } from "../utils/emailText";
 
 dotenv.config();
 
@@ -168,3 +170,42 @@ const setRefreshToken = async (user: IUser, res: Response) => {
 
   return res;
 };
+
+export const upgradeToInstructor = asyncHandler(
+  async (req: AuthRequest, res: Response) => {
+    const _id = req.user!.sub;
+
+    const user = await User.findOne({ _id });
+
+    if (!user) {
+      throw new ApiError(401, "User not found");
+    }
+
+    if (!user.roles.includes(Role.INSTRUCTOR)) {
+      user.roles.push(Role.INSTRUCTOR);
+    }
+
+    const updatedUser = await user.save();
+
+    sendEmail({
+      to: user.email,
+      subject: "Your Account Has Been Upgraded to Instructor",
+      text: accountUpgrade(user.firstName),
+    });
+
+    return successResponse(
+      res,
+      "Your account has been successfully upgraded to instructor",
+      {
+        user: {
+          id: user._id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          roles: updatedUser.roles,
+        },
+        accessToken: null,
+      }
+    );
+  }
+);

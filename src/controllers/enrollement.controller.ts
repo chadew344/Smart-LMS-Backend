@@ -10,6 +10,8 @@ import {
   GetEnrollmentParams,
   GetEnrollmentByCourseParams,
 } from "../validate/enrollment.schema";
+import { sendEmail } from "../config/email.config";
+import { courseEnroll } from "../utils/emailText";
 
 export const enrollInCourse = asyncHandler(
   async (req: AuthRequest, res: Response) => {
@@ -52,6 +54,12 @@ export const enrollInCourse = asyncHandler(
         },
       })
       .populate("student", "firstName lastName email");
+
+    sendEmail({
+      to: "",
+      subject: "New Course Enrollment",
+      text: courseEnroll("John", course.title, "David"),
+    });
 
     successResponse(res, "Enrolled successfully", populatedEnrollment, 201);
   }

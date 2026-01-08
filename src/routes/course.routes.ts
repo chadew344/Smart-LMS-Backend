@@ -39,7 +39,7 @@ router.post(
   createCourse
 );
 
-router.get("/:courseId", authenticate, validate(getCourseSchema), getCourse);
+router.get("/:courseId", validate(getCourseSchema), getCourse);
 
 router.patch(
   "/:courseId",
