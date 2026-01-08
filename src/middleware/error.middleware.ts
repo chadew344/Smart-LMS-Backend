@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { ZodError } from "zod";
 import { ApiError } from "../utils/ApiError";
+import axios from "axios";
 
 export const errorHandler = (
   err: unknown,
@@ -24,6 +25,18 @@ export const errorHandler = (
       success: false,
       message: err.message,
       errors: err.errors,
+    });
+  }
+
+  if (axios.isAxiosError(err)) {
+    const statusCode = err.response?.status || 502;
+
+    return res.status(statusCode).json({
+      success: false,
+      message:
+        err.response?.data?.error?.message ||
+        err.message ||
+        "External API error",
     });
   }
 

@@ -7,6 +7,7 @@ import courseRouter from "./routes/course.routes";
 import enrollmentRoutes from "./routes/enrollement.routes";
 import progressRoutes from "./routes/progress.routes";
 import uploadRoutes from "./routes/upload.routes";
+import aiRoutes from "./routes/ai.routes";
 import { errorHandler } from "./middleware/error.middleware";
 import cookieParser from "cookie-parser";
 dotenv.config();
@@ -37,6 +38,8 @@ app.use("/api/v1/enrollments", enrollmentRoutes);
 app.use("/api/v1/progress", progressRoutes);
 
 app.use("/api/v1/upload", uploadRoutes);
+
+app.use("/api/v1/ai", aiRoutes);
 
 app.get("/", (_req, res) => {
   res.send("Backend Running....");
