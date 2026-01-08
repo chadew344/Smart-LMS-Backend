@@ -4,6 +4,6 @@ import { generateContent } from "../controllers/ai.controller";
 
 const router = Router();
 
-router.post("/chat", generateContent);
+router.post("/chat", authenticate, generateContent);
 
 export default router;

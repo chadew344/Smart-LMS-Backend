@@ -211,11 +211,19 @@ Create a `.env` file in the root directory:
 PORT=5000
 NODE_ENV=development
 
+
 # Database
-MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/dbname?retryWrites=true&
+
+# For local development
+MONGO_URI=mongodb://localhost:27017/<dbname>
+
+# For production / cloud (MongoDB Atlas)
+MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/<dbname>?retryWrites=true&w=majority
+
 
 # CORS
 FRONTEND_URL=http://localhost:3000
+
 
 # JWT Secrets
 JWT_SECRET=your-super-secret-access-key-change-this
@@ -457,10 +465,13 @@ This project can be deployed easily using **Vercel** for the backend and **Mongo
 backend/
 ├── src
 │   ├── config
-│   │   └── cloudinary.ts                 # Cloud Storage Conig
+│   │   ├── cloudinary.ts                 # Cloud Storage Conig
+│   │   └── email.config.ts               # Email config
 │   ├── controllers
+│   │   ├── ai.controller.ts              # Intergrate with Gemini
 │   │   ├── auth.controller.ts
 │   │   ├── course.controller.ts
+│   │   ├── email.controller.ts
 │   │   ├── enrollement.controller.ts
 │   │   ├── progress.controller.ts
 │   │   └── upload.controller.ts
@@ -478,14 +489,17 @@ backend/
 │   │   ├── submission.model.ts
 │   │   └── user.model.ts
 │   ├── routes
+│   │   ├── ai.routes.ts
 │   │   ├── auth.routes.ts
 │   │   ├── course.routes.ts
+│   │   ├── email.routes.ts
 │   │   ├── enrollement.routes.ts
 │   │   ├── progress.routes.ts
 │   │   └── upload.routes.ts
 │   ├── types                                 # Custom Types
 │   │   ├── auth.types.ts
-│   │   └── course.type.ts
+│   │   ├── course.type.ts
+│   │   └── email.types.ts
 │   ├── utils
 │   │   ├── ApiError.ts
 │   │   ├── asyncHandler.ts
@@ -494,6 +508,7 @@ backend/
 │   ├── validate                              # Zod validation schemas
 │   |    ├── auth.schema.ts
 │   |    ├── course.schema.ts
+│   |    ├── email.schema.ts
 │   |    ├── enrollment.schema.ts
 │   |    ├── progress.schema.ts
 │   |    └── submission.schema.ts
