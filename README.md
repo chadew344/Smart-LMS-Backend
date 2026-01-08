@@ -222,7 +222,7 @@ MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/<dbname>?retry
 
 
 # CORS
-FRONTEND_URL=http://localhost:3000
+ALLOWED_ORIGINS=http://localhost:5173
 
 
 # JWT Secrets
@@ -503,6 +503,7 @@ backend/
 │   ├── utils
 │   │   ├── ApiError.ts
 │   │   ├── asyncHandler.ts
+│   │   ├── emailText.ts                     # Email text templates notifications
 │   │   ├── jwt.util.ts
 │   │   └── successResponse.ts
 │   ├── validate                              # Zod validation schemas
