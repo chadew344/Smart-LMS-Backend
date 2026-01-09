@@ -3,6 +3,7 @@ import { authenticate, authorize } from "../middleware/auth.middleware";
 import {
   getMyProfile,
   login,
+  loginWithGoogle,
   logout,
   refreshToken,
   registerUser,
@@ -17,6 +18,8 @@ const router = Router();
 router.post("/register", validate(registerSchema), registerUser);
 
 router.post("/login", validate(loginSchema), login);
+
+router.post("/google", loginWithGoogle);
 
 router.post("/refresh", refreshToken);
 

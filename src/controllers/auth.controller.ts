@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { IUser, Role, User } from "../models/user.model";
+import { AuthProvider, IUser, Role, User } from "../models/user.model";
 import bcrypt from "bcryptjs";
 import { signAccessToken, signRefreshToken } from "../utils/jwt.util";
 import { AuthRequest } from "../types/auth.types";
@@ -12,6 +12,7 @@ import { RefreshToken } from "../models/refreshToken.model";
 import { successResponse } from "../utils/successResponse";
 import { sendEmail } from "../config/email.config";
 import { accountUpgrade } from "../utils/emailText";
+import { googleOAuth } from "../config/googleOAuth";
 
 dotenv.config();
 
@@ -62,7 +63,8 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   const { email, password } = req.body as LoginSchema;
 
   const user = await User.findOne({ email }).select("+password");
-  if (!user) {
+
+  if (!user || !user.password) {
     throw new ApiError(401, "Invalid credentials");
   }
 
@@ -84,6 +86,51 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     accessToken: signAccessToken(user),
   });
 });
+
+export const loginWithGoogle = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { code } = req.body;
+
+    if (!code) {
+      throw new ApiError(400, "Google authorization code is required");
+    }
+
+    const payload = await googleOAuth(code);
+
+    const { email, given_name, family_name, picture } = payload;
+
+    let user = await User.findOne({ email });
+
+    if (user) {
+      if (!user.avatar && picture) {
+        user.avatar = picture;
+        await user.save();
+      }
+    } else {
+      user = await User.create({
+        firstName: given_name || "User",
+        lastName: family_name || "Name",
+        email,
+        avatar: picture,
+        authProvider: AuthProvider.GOOGLE,
+        roles: [Role.STUDENT],
+      });
+    }
+
+    res = await setRefreshToken(user, res);
+
+    return successResponse(res, "Login successful", {
+      user: {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        roles: user.roles,
+      },
+      accessToken: signAccessToken(user),
+    });
+  }
+);
 
 export const getMyProfile = (_req: AuthRequest, res: Response) => {
   res.status(200).json({

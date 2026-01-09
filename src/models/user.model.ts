@@ -6,12 +6,18 @@ export enum Role {
   INSTRUCTOR = "INSTRUCTOR",
 }
 
+export enum AuthProvider {
+  LOCAL = "local",
+  GOOGLE = "google",
+}
+
 export interface IUser extends Document {
   _id: mongoose.Types.ObjectId;
   firstName: string;
   lastName: string;
   email: string;
-  password: string;
+  password?: string;
+  authProvider: AuthProvider;
   roles: Role[];
   avatar?: string;
   bio?: string;
@@ -47,9 +53,16 @@ const userSchema = new Schema<IUser>(
     },
     password: {
       type: String,
-      required: [true, "Password is required"],
+      required: function (this: any) {
+        return this.authProvider !== AuthProvider.GOOGLE;
+      },
       minlength: [8, "Password must be at least 8 characters"],
       select: false,
+    },
+    authProvider: {
+      type: String,
+      enum: AuthProvider,
+      default: AuthProvider.LOCAL,
     },
     roles: {
       type: [String],
