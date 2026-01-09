@@ -9,7 +9,7 @@
 
 ## 🚀 Live Demo
 
-**Backend API:** [Will be updated shortly]
+- **Backend API:** [smart-lms-backend.vercel.app](https://smart-lms-backend.vercel.app)
 
 ## 📋 Table of Contents
 

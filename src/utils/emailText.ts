@@ -30,7 +30,7 @@ Course Name: "${courseName}"
 Instructor: ${instructorName}
 
 You can start learning right away by accessing the course dashboard:
-https://edumate.com/student/courses
+https://smart-lms-frontend.vercel.app/dashboard/my-courses
 
 Here's what you can do next:
   • View the course curriculum
