@@ -72,6 +72,7 @@
 
 ### Advanced Features
 
+- **Payment gatway**: Stripe
 - **AI integration**: Gemini API
 - **PDF generation**: PDFKit
 - **Email**: Nodemailer (automated emails)
@@ -472,13 +473,16 @@ backend/
 ├── src
 │   ├── config
 │   │   ├── cloudinary.ts                 # Cloud Storage Conig
-│   │   └── email.config.ts               # Email config
+│   │   ├── email.config.ts               # Email config (Gmail)
+│   │   ├── googleOAuth.ts
+│   │   └── stripe.config.ts              # Payment Gatway config(stripe)
 │   ├── controllers
 │   │   ├── ai.controller.ts              # Intergrate with Gemini
 │   │   ├── auth.controller.ts
 │   │   ├── course.controller.ts
 │   │   ├── email.controller.ts
 │   │   ├── enrollement.controller.ts
+│   │   ├── payment.controller.ts
 │   │   ├── progress.controller.ts
 │   │   └── upload.controller.ts
 │   ├── middleware
@@ -500,12 +504,14 @@ backend/
 │   │   ├── course.routes.ts
 │   │   ├── email.routes.ts
 │   │   ├── enrollement.routes.ts
+│   │   ├── progess.routes.ts
 │   │   ├── progress.routes.ts
 │   │   └── upload.routes.ts
 │   ├── types                                 # Custom Types
 │   │   ├── auth.types.ts
 │   │   ├── course.type.ts
-│   │   └── email.types.ts
+│   │   ├── email.type.ts
+│   │   └── payment.types.ts
 │   ├── utils
 │   │   ├── ApiError.ts
 │   │   ├── asyncHandler.ts
