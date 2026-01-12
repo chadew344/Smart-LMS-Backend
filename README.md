@@ -36,7 +36,7 @@
 - **MongoDB Integration** - Mongoose ODM with schema validation and indexing
 - **TypeScript** - Full type safety across the entire codebase
 - **Security** - Password encryption with bcryptjs, CORS, helmet, rate limiting
-- **Advanced Feature** - AI integration, PDF generation, and automated emails
+- **Advanced Feature** - Payment Gateway, AI integration, PDF generation, and automated emails
 
 <a id="tech-stack"></a>
 

@@ -1,5 +1,6 @@
 import mongoose, { Schema, model, Types, Document } from "mongoose";
 import { EnrollmentStatus } from "../types/course.type";
+import { PaymentStatus } from "../types/payment.types";
 
 export interface IEnrollment extends Document {
   _id: mongoose.Types.ObjectId;
@@ -15,6 +16,10 @@ export interface IEnrollment extends Document {
 
   currentModuleId?: Types.ObjectId;
   currentLessonId?: Types.ObjectId;
+
+  paymentStatus: PaymentStatus;
+  paymentIntentId?: string;
+  amountPaid?: number;
 
   lastAccessedAt: Date;
   timeSpent: number;
@@ -44,6 +49,14 @@ const EnrollmentSchema = new Schema<IEnrollment>(
 
     currentModuleId: Schema.Types.ObjectId,
     currentLessonId: Schema.Types.ObjectId,
+
+    paymentStatus: {
+      type: String,
+      enum: PaymentStatus,
+      default: PaymentStatus.PENDING,
+    },
+    paymentIntentId: String,
+    amountPaid: Number,
 
     lastAccessedAt: { type: Date, default: Date.now },
     timeSpent: { type: Number, default: 0 },
